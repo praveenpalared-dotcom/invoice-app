@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InvoiceAI — The Digital Forensicist</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@500&family=Space+Grotesk:wght@300;400;700&family=Manrope:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-container-high": "#292a2e",
+          "surface-dim": "#121317",
+          "outline-variant": "#434654",
+          "on-surface": "#e3e2e8",
+          "surface-container-highest": "#343439",
+          "surface-container-low": "#1a1b20",
+          "background": "#121317",
+          "primary": "#b3c5ff",
+          "outline": "#8d909f",
+          "on-surface-variant": "#c3c6d6",
+          "surface-container": "#1e1f24",
+          "surface-bright": "#38393e",
+          "error": "#ffb4ab",
+        },
+        fontFamily: {
+          "headline": ["Space Grotesk"],
+          "body": ["Manrope"],
+          "syne": ["Syne"],
+          "mono": ["JetBrains Mono"]
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body {
+    background-color: #08090D;
+    position: relative;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #2A2F45 #08090D;
+  }
+  body::before {
+    content: "";
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03; pointer-events: none; z-index: 9999;
+  }
+  .glow-blue {
+    position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw;
+    background: radial-gradient(circle, rgba(79,126,247,0.1) 0%, rgba(79,126,247,0) 70%);
+    filter: blur(120px); z-index: -1;
+  }
+  .glow-amber {
+    position: fixed; bottom: -10%; right: -10%; width: 40vw; height: 40vw;
+    background: radial-gradient(circle, rgba(245,166,35,0.07) 0%, rgba(245,166,35,0) 70%);
+    filter: blur(120px); z-index: -1;
+  }
+  .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .7; transform: scale(0.98); }
+  }
+  .transition-premium { transition: all 0.4s cubic-bezier(0.22,1,0.36,1); }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #08090D; }
+  ::-webkit-scrollbar-thumb { background: #2A2F45; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #4F7EF7; }
+
+  @keyframes sweep {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  .progress-sweep {
+    background: linear-gradient(90deg, #4F7EF7 0%, #7C3AED 40%, #4F7EF7 80%, #7C3AED 100%);
+    background-size: 200% 100%;
+    animation: sweep 1.6s linear infinite;
+  }
+  @keyframes chipIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .chip-in { animation: chipIn 0.3s ease forwards; }
+
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .row-in { opacity: 0; animation: rowIn 0.35s ease forwards; }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .card-reveal { opacity: 0; animation: cardReveal 0.4s ease forwards; }
+
+  .detail-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+  .detail-body.open { grid-template-rows: 1fr; }
+  .detail-body > div { overflow: hidden; }
+
+  .chevron-icon { transition: transform 0.3s ease; }
+  .chevron-icon.rotated { transform: rotate(180deg); }
+
+  @keyframes toastIn  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes toastOut { from { opacity:1; transform:translateY(0);    } to { opacity:0; transform:translateY(20px); } }
+  .toast-in  { animation: toastIn  0.3s ease forwards; }
+  .toast-out { animation: toastOut 0.3s ease forwards; }
+
+  #progress-label { transition: opacity 0.2s ease; }
+</style>
+</head>
+
+<body class="text-on-surface font-body selection:bg-blue-500/30">
+<div class="glow-blue"></div>
+<div class="glow-amber"></div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[99999] hidden">
+  <div id="toast-inner" class="flex items-center gap-3 px-5 py-3 rounded-xl bg-surface-container-high border border-outline-variant/30 shadow-2xl text-sm font-medium">
+    <span id="toast-icon" class="material-symbols-outlined text-lg"></span>
+    <span id="toast-msg"></span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-500/5">
+  <div class="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto border-b border-[#1E2130]">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1;">description</span>
+      </div>
+      <span class="text-2xl font-extrabold tracking-tighter text-slate-100 font-syne">InvoiceAI</span>
+    </div>
+    <div class="hidden md:flex items-center gap-8">
+      <a class="text-blue-400 font-bold border-b-2 border-blue-500 pb-1" href="#">Dashboard</a>
+      <a class="text-slate-400 font-medium hover:text-slate-200 transition-colors" href="#">History</a>
+      <a class="text-slate-400 font-medium hover:text-slate-200 transition-colors" href="#">Settings</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold tracking-wider">
+        Anomaly Detection · v2.0
+      </span>
+    </div>
+  </div>
+</nav>
+
+<main class="pt-32 pb-24 px-6 max-w-screen-xl mx-auto">
+
+  <!-- Hero -->
+  <section class="mb-20 text-left">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-widest mb-6 animate-pulse-soft">
+      <span class="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]"></span>
+      AI-Powered Fraud Detection
+    </div>
+    <h1 class="text-5xl md:text-7xl font-syne font-extrabold tracking-tight leading-[1.1] mb-6">
+      Detect Invoice <span class="bg-gradient-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">Anomalies</span><br/>
+      Before They Cost You.
+    </h1>
+    <p class="text-xl text-on-surface-variant font-light max-w-2xl leading-relaxed">
+      Upload invoice images. Extract fields automatically.<br class="hidden md:block"/>
+      Flag suspicious entries with ML — in seconds.
+    </p>
+  </section>
+
+  <!-- Upload & Pipeline -->
+  <div class="grid grid-cols-1 gap-8 mb-20">
+
+    <!-- Drop Zone -->
+    <div id="drop-zone"
+         class="group relative bg-surface-container-low rounded-[20px] border-2 border-dashed border-[#2A2F45] p-16 flex flex-col items-center justify-center cursor-pointer overflow-hidden"
+         style="transition: all 0.4s cubic-bezier(0.22,1,0.36,1);"
+         onclick="document.getElementById('file-input').click()">
+      <div class="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-premium pointer-events-none" id="drop-glow"></div>
+      <div id="drop-icon-wrap" class="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 transition-premium shadow-xl">
+        <span class="material-symbols-outlined text-4xl text-blue-400">cloud_upload</span>
+      </div>
+      <h3 class="text-2xl font-syne font-bold mb-2">Drop invoices here</h3>
+      <p class="text-on-surface-variant mb-8">or click to browse your files</p>
+      <button onclick="event.stopPropagation();document.getElementById('file-input').click()"
+              class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition-premium shadow-lg shadow-blue-500/20">
+        Browse Files
+      </button>
+      <div class="flex gap-3 mt-6 flex-wrap justify-center">
+        <span class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">PNG</span>
+        <span class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">JPG</span>
+        <span class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">TIFF</span>
+        <span class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/20">BMP</span>
+      </div>
+    </div>
+    <input id="file-input" type="file" multiple accept=".png,.jpg,.jpeg,.tiff,.tif,.bmp" class="hidden"/>
+
+    <!-- File Chips -->
+    <div id="file-list" class="flex flex-wrap gap-3 hidden"></div>
+
+    <!-- Progress Bar -->
+    <div id="progress-section" class="hidden flex-col gap-3">
+      <div class="h-1 w-full rounded-full bg-surface-container-high overflow-hidden">
+        <div class="progress-sweep h-full w-full rounded-full"></div>
+      </div>
+      <p id="progress-label" class="text-sm font-mono text-on-surface-variant text-center tracking-wide"></p>
+    </div>
+
+    <!-- Run Button -->
+    <button id="run-btn"
+            disabled
+            class="h-14 w-full bg-gradient-to-r from-[#4F7EF7] to-[#7C3AED] rounded-xl text-white font-syne font-bold text-lg flex items-center justify-center gap-3 transition-premium shadow-2xl shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+            style="transition: all 0.4s cubic-bezier(0.22,1,0.36,1);">
+      <span class="material-symbols-outlined">bolt</span>
+      Run Detection Pipeline
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section" class="hidden">
+
+    <!-- Metrics -->
+    <section id="metrics-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20"></section>
+
+    <!-- Table -->
+    <section class="mb-20">
+      <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+        <div>
+          <h2 class="text-3xl font-syne font-bold mb-2">Analysis Results</h2>
+          <p class="text-on-surface-variant">Detailed breakdown of processed evidence.</p>
+        </div>
+        <a id="download-btn" href="#"
+           class="px-5 py-2 rounded-xl border border-outline-variant/30 text-sm font-bold text-on-surface-variant hover:border-blue-500 hover:text-blue-400 transition-premium flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">download</span>
+          Export CSV
+        </a>
+      </div>
+      <div class="overflow-x-auto rounded-2xl bg-surface-container-low border border-outline-variant/10">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-high/50 text-xs font-mono uppercase tracking-widest text-on-surface-variant">
+              <th class="px-6 py-4">Invoice #</th>
+              <th class="px-6 py-4">Date</th>
+              <th class="px-6 py-4">Vendor</th>
+              <th class="px-6 py-4 text-right">Grand Total</th>
+              <th class="px-6 py-4 text-right">Calc. Total</th>
+              <th class="px-6 py-4 text-right">Z-Score</th>
+              <th class="px-6 py-4 text-center">Status</th>
+              <th class="px-6 py-4">Reason</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody" class="divide-y divide-outline-variant/5"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Anomaly Cards -->
+    <section id="anomaly-section" class="space-y-6 mb-20 hidden">
+      <h3 class="text-xl font-syne font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined text-red-500">warning</span>
+        Critical Evidence Review
+      </h3>
+      <div id="anomaly-cards" class="space-y-4"></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full py-12 border-t border-slate-900 bg-slate-950 mt-20">
+  <div class="flex flex-col md:flex-row justify-between items-center px-8 gap-4 max-w-screen-2xl mx-auto">
+    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500">© 2024 InvoiceAI — The Digital Forensicist.</span>
+    <div class="flex gap-8">
+      <a class="font-mono text-[10px] uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors" href="#">Privacy Policy</a>
+      <a class="font-mono text-[10px] uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors" href="#">Terms of Service</a>
+      <a class="font-mono text-[10px] uppercase tracking-widest text-slate-600 hover:text-blue-400 transition-colors" href="#">API Status</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const API_BASE    = "http://localhost:5000";
+const fileInput   = document.getElementById("file-input");
+const dropZone    = document.getElementById("drop-zone");
+const fileList    = document.getElementById("file-list");
+const runBtn      = document.getElementById("run-btn");
+const progressSec = document.getElementById("progress-section");
+const progressLbl = document.getElementById("progress-label");
+const resultsSec  = document.getElementById("results-section");
+
+let selectedFiles = [];
+
+// ── Drag-and-drop ─────────────────────────────────────────────────────────────
+["dragenter","dragover"].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropZone.style.borderColor = "#4F7EF7";
+    dropZone.style.transform   = "translateY(-4px)";
+    dropZone.style.background  = "rgba(79,126,247,0.05)";
+  })
+);
+["dragleave","drop"].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropZone.style.borderColor = "";
+    dropZone.style.transform   = "";
+    dropZone.style.background  = "";
+  })
+);
+dropZone.addEventListener("drop", e => {
+  const dropped = Array.from(e.dataTransfer.files).filter(isAllowed);
+  const skipped = e.dataTransfer.files.length - dropped.length;
+  if (skipped > 0) showToast(`${skipped} file(s) skipped — unsupported format.`, "warning");
+  addFiles(dropped);
+});
+
+fileInput.addEventListener("change", () => {
+  addFiles(Array.from(fileInput.files));
+  fileInput.value = "";
+});
+
+function isAllowed(f) {
+  return /\.(png|jpe?g|tiff?|bmp)$/i.test(f.name);
+}
+
+function addFiles(files) {
+  files.forEach(f => {
+    if (!selectedFiles.find(x => x.name === f.name && x.size === f.size)) {
+      selectedFiles.push(f);
+    }
+  });
+  renderChips();
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  renderChips();
+}
+
+function renderChips() {
+  fileList.innerHTML = "";
+  if (!selectedFiles.length) {
+    fileList.classList.add("hidden");
+    runBtn.disabled = true;
+    return;
+  }
+  fileList.classList.remove("hidden");
+  runBtn.disabled = false;
+  selectedFiles.forEach((f, i) => {
+    const chip = document.createElement("div");
+    chip.className = "chip-in bg-surface-container-high border border-outline-variant/30 px-4 py-3 rounded-xl flex items-center gap-3";
+    chip.style.animationDelay = `${i * 50}ms`;
+    chip.innerHTML = `
+      <span class="material-symbols-outlined text-blue-400 text-lg">image</span>
+      <span class="text-sm font-mono truncate max-w-[200px]">${escHtml(f.name)}</span>
+      <span class="text-xs text-on-surface-variant ml-1">${(f.size/1024).toFixed(1)} KB</span>
+      <button onclick="removeFile(${i})" class="ml-auto text-on-surface-variant hover:text-red-400 transition-colors">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>`;
+    fileList.appendChild(chip);
+  });
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+const statusSteps = ["Running OCR…","Extracting fields…","Detecting anomalies…","Finalising results…"];
+let statusInterval = null;
+
+function startProgress() {
+  progressSec.classList.remove("hidden");
+  progressSec.classList.add("flex");
+  progressLbl.style.opacity = "1";
+  progressLbl.textContent   = statusSteps[0];
+  let i = 0;
+  statusInterval = setInterval(() => {
+    i = (i + 1) % statusSteps.length;
+    progressLbl.style.opacity = "0";
+    setTimeout(() => {
+      progressLbl.textContent   = statusSteps[i];
+      progressLbl.style.opacity = "1";
+    }, 200);
+  }, 1800);
+}
+
+function stopProgress(msg) {
+  clearInterval(statusInterval);
+  progressLbl.style.opacity = "1";
+  progressLbl.textContent   = msg;
+  setTimeout(() => {
+    progressSec.classList.add("hidden");
+    progressSec.classList.remove("flex");
+  }, 900);
+}
+
+// ── Run pipeline ──────────────────────────────────────────────────────────────
+runBtn.addEventListener("click", async () => {
+  if (!selectedFiles.length) return;
+  runBtn.disabled = true;
+  runBtn.innerHTML = `
+    <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+      <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z"/>
+    </svg> Analysing invoices…`;
+
+  startProgress();
+  resultsSec.classList.add("hidden");
+
+  const form = new FormData();
+  selectedFiles.forEach(f => form.append("invoices", f));
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/process`, { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok) {
+      stopProgress("Pipeline failed.");
+      showToast(data.error || "Server error — check the console.", "error");
+      console.error(data.detail || data.error);
+    } else {
+      stopProgress("Done ✓");
+      renderResults(data);
+      showToast(
+        `Processed ${data.summary.total_invoices} invoice(s) · ${data.summary.total_anomalies} anomaly flagged.`,
+        data.summary.total_anomalies > 0 ? "warning" : "success"
+      );
+      setTimeout(() => resultsSec.scrollIntoView({ behavior:"smooth", block:"start" }), 200);
+    }
+  } catch (err) {
+    stopProgress("Connection failed.");
+    showToast("Cannot reach the server. Is server.py running on port 5000?", "error");
+    console.error(err);
+  } finally {
+    runBtn.disabled = false;
+    runBtn.innerHTML = `<span class="material-symbols-outlined">bolt</span> Run Detection Pipeline`;
+  }
+});
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+function fmt(val) {
+  if (val == null) return "—";
+  return "$" + parseFloat(val).toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
+function renderResults({ summary, invoices, anomaly_reasons }) {
+  // Metrics
+  const metricsGrid = document.getElementById("metrics-grid");
+  const hasAnomalies = summary.total_anomalies > 0;
+  metricsGrid.innerHTML = [
+    { label:"Invoices Processed",  value: summary.total_invoices,                                              red: false },
+    { label:"Anomalies Flagged",   value: summary.total_anomalies,                                             red: hasAnomalies },
+    { label:"Total Invoice Value", value: summary.total_value != null ? fmt(summary.total_value) : "—",        red: false },
+    { label:"Unique Vendors",      value: summary.unique_vendors,                                              red: false },
+  ].map((m, i) => `
+    <div class="card-reveal bg-surface-container-low p-6 rounded-[20px] border ${m.red ? "border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.08)]" : "border-outline-variant/10"}"
+         style="animation-delay:${i*100}ms">
+      <p class="text-xs font-mono uppercase tracking-widest mb-4 flex items-center gap-2 ${m.red ? "text-red-400" : "text-on-surface-variant"}">
+        ${m.red ? `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse inline-block"></span>` : ""}
+        ${m.label}
+      </p>
+      <h4 class="text-4xl font-mono font-bold ${m.red ? "text-red-500" : ""}">${m.value}</h4>
+    </div>`).join("");
+
+  // Table rows
+  const tbody = document.getElementById("results-tbody");
+  tbody.innerHTML = invoices.map((inv, i) => {
+    const a = inv.is_anomaly;
+    return `
+      <tr class="row-in transition-colors ${a ? "bg-[#2D1515] border-l-[3px] border-red-500" : "hover:bg-surface-container-high/30"}"
+          style="animation-delay:${i*40}ms">
+        <td class="px-6 py-5 font-mono text-sm">${escHtml(inv.invoice_number)}</td>
+        <td class="px-6 py-5 text-sm">${escHtml(inv.invoice_date)}</td>
+        <td class="px-6 py-5 font-bold">${escHtml(inv.vendor_name)}</td>
+        <td class="px-6 py-5 font-mono text-right ${a ? "text-red-400 font-bold" : ""}">${fmt(inv.grand_total)}</td>
+        <td class="px-6 py-5 font-mono text-right ${a ? "text-red-400 font-bold" : ""}">${fmt(inv.calculated_total)}</td>
+        <td class="px-6 py-5 font-mono text-right text-sm">${inv.z_score != null ? inv.z_score.toFixed(2) : "—"}</td>
+        <td class="px-6 py-5 text-center">
+          ${a
+            ? `<span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">Anomaly</span>`
+            : `<span class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider">Verified</span>`}
+        </td>
+        <td class="px-6 py-5 text-sm ${a ? "text-red-400 font-medium" : "text-on-surface-variant"}">${escHtml(inv.anomaly_reason || "—")}</td>
+      </tr>`;
+  }).join("");
+
+  // CSV download
+  buildCSVLink(invoices);
+
+  // Anomaly cards
+  const flagged     = invoices.filter(inv => inv.is_anomaly);
+  const anomSection = document.getElementById("anomaly-section");
+  const anomCards   = document.getElementById("anomaly-cards");
+
+  if (flagged.length > 0) {
+    anomSection.classList.remove("hidden");
+    anomCards.innerHTML = flagged.map((inv, i) => {
+      const disc = (inv.grand_total != null && inv.calculated_total != null)
+        ? inv.grand_total - inv.calculated_total : null;
+      return `
+        <div class="card-reveal bg-surface-container-low rounded-[20px] border border-red-500/30 overflow-hidden"
+             style="animation-delay:${i*120}ms">
+          <div class="p-8 cursor-pointer select-none" onclick="toggleDetail(this)">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="text-xs font-mono uppercase tracking-widest text-red-400 block mb-2">Flagged · ${escHtml(inv.invoice_number)}</span>
+                <h4 class="text-xl font-bold">${escHtml(inv.vendor_name)} — Variance Detected</h4>
+              </div>
+              <span class="material-symbols-outlined chevron-icon text-on-surface-variant">expand_more</span>
+            </div>
+          </div>
+          <div class="detail-body">
+            <div>
+              <div class="px-8 pb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div class="space-y-5">
+                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+                      <span class="text-on-surface-variant font-medium">Grand Total (Parsed)</span>
+                      <span class="font-mono text-xl text-red-400 font-bold">${fmt(inv.grand_total)}</span>
+                    </div>
+                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+                      <span class="text-on-surface-variant font-medium">Calculated Line Items</span>
+                      <span class="font-mono text-xl text-primary font-bold">${fmt(inv.calculated_total)}</span>
+                    </div>
+                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+                      <span class="text-on-surface-variant font-medium">Z-Score</span>
+                      <span class="font-mono text-xl font-bold">${inv.z_score != null ? inv.z_score.toFixed(4) : "—"}</span>
+                    </div>
+                    ${disc != null ? `
+                    <div class="flex justify-between items-end pt-2">
+                      <span class="text-on-surface-variant font-medium">Net Discrepancy</span>
+                      <span class="font-mono text-xl text-red-500 font-bold">${disc >= 0 ? "+" : ""}${fmt(disc)}</span>
+                    </div>` : ""}
+                  </div>
+                  <div class="bg-black/40 rounded-xl p-6 border border-outline-variant/10">
+                    <p class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant mb-4">ML Engine Reason Code</p>
+                    <code class="text-sm font-mono text-red-400 block leading-relaxed whitespace-pre-wrap">${escHtml(inv.anomaly_reason || "No reason provided.")}</code>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-red-500/5 px-8 py-4 border-t border-red-500/20 flex justify-end gap-4">
+                <button onclick="this.closest('.card-reveal').style.display='none'"
+                        class="px-6 py-2 text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors">
+                  Dismiss
+                </button>
+                <button class="px-6 py-2 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-600 shadow-lg shadow-red-500/20 transition-premium">
+                  Flag for Manual Audit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+  } else {
+    anomSection.classList.add("hidden");
+  }
+
+  resultsSec.classList.remove("hidden");
+}
+
+// ── Expand / collapse ─────────────────────────────────────────────────────────
+function toggleDetail(header) {
+  const card   = header.closest(".card-reveal");
+  const body   = card.querySelector(".detail-body");
+  const chev   = card.querySelector(".chevron-icon");
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open", !isOpen);
+  chev.classList.toggle("rotated", !isOpen);
+}
+
+// ── CSV export ────────────────────────────────────────────────────────────────
+function buildCSVLink(invoices) {
+  const headers = ["invoice_number","invoice_date","vendor_name","grand_total","calculated_total","z_score","is_anomaly","anomaly_reason"];
+  const rows    = invoices.map(inv => headers.map(h => `"${String(inv[h] ?? "").replace(/"/g,'""')}"`).join(","));
+  const csv     = [headers.join(","), ...rows].join("\n");
+  const blob    = new Blob([csv], { type:"text/csv" });
+  const btn     = document.getElementById("download-btn");
+  btn.href      = URL.createObjectURL(blob);
+  btn.download  = "invoice_results.csv";
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast");
+  const inner = document.getElementById("toast-inner");
+  const icon  = document.getElementById("toast-icon");
+  const text  = document.getElementById("toast-msg");
+  const cfg   = { success:{i:"check_circle",c:"text-green-400"}, error:{i:"error",c:"text-red-400"}, warning:{i:"warning",c:"text-amber-400"} }[type] || {i:"info",c:"text-blue-400"};
+  icon.textContent = cfg.i;
+  icon.className   = `material-symbols-outlined text-lg ${cfg.c}`;
+  text.textContent = msg;
+  toast.classList.remove("hidden");
+  inner.classList.remove("toast-out");
+  inner.classList.add("toast-in");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    inner.classList.replace("toast-in","toast-out");
+    setTimeout(() => toast.classList.add("hidden"), 300);
+  }, 4500);
+}
+</script>
+</body>
+</html>

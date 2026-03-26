@@ -1,0 +1,36 @@
+file_path,invoice_number,invoice_date,vendor_name,grand_total,calculated_total,num_line_items,z_score,is_anomaly,anomaly_reason
+sample_invoices\INV-20240001.png,20240001,2026-03-09,Acme SuppliesCa,72.0,,0,1.66,False,
+sample_invoices\INV-20240002.png,20240002,2026-03-19,Global Tech Ltd.,118.0,,0,0.59,False,
+sample_invoices\INV-20240003.png,20240003,2026-03-10,"Pinnacle Services Inc,",704.0,,0,1.24,False,
+sample_invoices\INV-20240004.png,20240004,2026-03-12,"Pinnacle Services Inc,",28.0,,0,1.29,False,
+sample_invoices\INV-20240005-DUP.png,20240005,2026-03-24,Acme SuppliesCa,215.0,,0,0.59,False,
+sample_invoices\INV-20240006.png,20240006,2028-03-07,"Acme SuppliesCo,",186.0,,0,1.0,True,"future_date, isolation_forest"
+sample_invoices\INV-20240007.png,20240007,2026-03-19,Global Tech Ltd.,200.0,,0,0.21,False,
+sample_invoices\INV-20240008.png,20240008,2026-01-29,Sunrise Logistics,110.0,,0,0.62,False,
+sample_invoices\INV-20240009.png,20240009,2026-01-24,Metro Office Solutions,594.0,,0,0.7,False,
+sample_invoices\INV-20240010.png,20240010,2026-03-06,Sunrise Logistics,28.0,,0,1.06,False,
+sample_invoices\INV-20240011.png,20240011,2028-03-22,"Pinnacle Services Inc,",305.0,,0,0.25,True,"future_date, isolation_forest"
+sample_invoices\INV-20240012.png,20240012,2026-02-28,Global Tech Ltd.,305.0,,0,0.29,False,
+sample_invoices\INV-20240013.png,20240013,2026-03-11,Metro Office Solutions,433.0,,0,0.11,False,
+sample_invoices\INV-20240014.png,20240014,2026-02-12,Metro Office Solutions,110.0,,0,1.75,False,
+sample_invoices\INV-20240015.png,20240015,2026-02-28,Global Tech Ltd.,209.0,,0,0.16,False,
+sample_invoices\INV-20240016.png,20240016,2026-03-10,Metro Office Solutions,590.0,,0,0.68,False,
+sample_invoices\INV-20240017.png,20240017,2026-03-11,Acme SuppliesCa,238.0,,0,0.95,False,
+sample_invoices\INV-20240018.png,20240018,2026-01-27,"Pinnacle Services Inc,",205.0,,0,0.63,False,
+sample_invoices\INV-20240019.png,20240019,2026-03-09,Sunrise Logistics,257.0,,0,0.16,False,
+sample_invoices\INV-20240020.png,20240020,2026-03-01,"Pinnacle Services Inc,",214.0,,0,0.59,False,
+sample_invoices\INV-20240021.png,20240021,2026-03-19,Global Tech Ltd.,52.0,,0,0.9,False,
+sample_invoices\INV-20240022.png,20240022,2026-02-12,Acme SuppliesCa,185.0,,0,0.12,False,
+sample_invoices\INV-20240023.png,20240023,2026-02-14,Global Tech Ltd.,381.0,,0,0.65,False,
+sample_invoices\INV-20240024.png,20240024,2026-02-09,Sunrise Logistics,598.0,,0,1.97,False,
+sample_invoices\INV-20240025.png,20240025,2026-02-25,"Pinnacle Services Inc,",272.0,,0,0.38,False,
+sample_invoices\INV-20240026.png,20240026,2026-01-25,Global Tech Ltd.,765.0,,0,2.46,False,
+sample_invoices\INV-20240027.png,20240027,2026-03-01,"Acme SuppliesCo,",318.0,,0,1.0,False,
+sample_invoices\INV-20240028.png,20240028,2026-03-04,Global Tech Ltd.,110.0,,0,0.63,False,
+sample_invoices\INV-20240029.png,20240029,2026-01-24,Sunrise Logistics,90.0,,0,0.73,False,
+sample_invoices\INV-20240030.png,20240030,2026-01-27,Metro Office Solutions,695.0,,0,1.21,False,
+sample_invoices\INV-20240031.png,20240031,2026-02-06,"Pinnacle Services Inc,",900.0,,0,1.97,True,isolation_forest
+sample_invoices\INV-20240032.png,20240032,2028-02-03,Sunrise Logistics,280.0,,0,0.28,True,"future_date, isolation_forest"
+sample_invoices\INV-20240033.png,20240033,2026-03-29,Global Tech Ltd.,52.0,,0,0.9,True,future_date
+sample_invoices\INV-20240034.png,20240034,2025-10-29,"Pinnacle Services Inc,",353.0,,0,0.07,True,old_date (>90 days)
+sample_invoices\INV-20240035.png,20240035,2026-03-10,Metro Office Solutions,311.6,,0,0.73,False,
