@@ -163,7 +163,7 @@ def detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
     _annotate(df, date_flags["date_future"], "future_date")
     _annotate(df, date_flags["date_old"],    "old_date (>90 days)")
 
-    
+    0
     print("  [3/4] Computing per-vendor Z-scores …")
     z_scores = _compute_z_scores(df)
     df["z_score"] = z_scores.round(2)
